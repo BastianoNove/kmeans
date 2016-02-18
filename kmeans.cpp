@@ -1,6 +1,6 @@
 #include <math.h>
 #include <iostream>
-#include <vector>
+#include <sstream>
 
 #include "kmeans.h"
 
@@ -12,6 +12,18 @@ double euclidean_distance(double *x, double *y) {
   }
 
   return sqrt(result);
+}
+
+void print_data_point(DataPoint point) {
+  std::ostringstream stream;
+  stream << point.attr[0];
+  for (int i = 1; i < point.n; i++) {
+    stream << ", ";
+    stream << point.attr[i];
+  }
+
+  std::cout << "Dimensions: " << point.n << " Attributes: " << stream.str()
+            << " Cluster id: " << point.k << std::endl;
 }
 
 int main() {
