@@ -15,7 +15,7 @@ void print_data_points(const std::vector<DataPoint>);
 
 void kmeans(std::vector<DataPoint>, int k);
 
-std::vector<DataPoint> initial_centroids(const std::vector<DataPoint>, int k);
+std::vector<DataPoint> initial_centroids(std::vector<DataPoint>, int k);
 
 void assign_closest(std::vector<DataPoint>, DataPoint&, int&);
 

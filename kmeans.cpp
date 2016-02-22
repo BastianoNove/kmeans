@@ -28,9 +28,7 @@ void print_data_point(const DataPoint point) {
     stream << point.attr[i];
   }
 
-  std::cout << "Dimensions: " << point.n << " Attributes: " << stream.str()
-            << " Distance to cluster: " << point.distance
-            << " Cluster id: " << point.k << std::endl;
+  std::cout << stream.str() << ", " << point.k << std::endl;
 }
 
 void print_data_points(const std::vector<DataPoint> points) {
@@ -58,31 +56,58 @@ void kmeans(std::vector<DataPoint> data_points, int k) {
     centroids = recompute_centroids(data_points, centroids);
   }
 
-  std::cout << "Centroids : " << std::endl;
   print_data_points(centroids);
-
-  std::cout << std::endl << "Cluster assignment : " << std::endl;
   print_data_points(data_points);
 }
 
-std::vector<DataPoint> initial_centroids(const std::vector<DataPoint> points,
-                                         int k) {
+std::vector<DataPoint> initial_centroids(std::vector<DataPoint> points, int k) {
+  // Build a sample of points
+  std::random_shuffle(points.begin(), points.end());
+  int sample_size =
+      (points.size() * 0.20) > k ? (points.size() * 0.20) : points.size();
   std::vector<DataPoint>::const_iterator first = points.begin();
-  std::vector<DataPoint>::const_iterator last = points.begin() + k;
-  std::vector<DataPoint> firstK(first, last);
+  std::vector<DataPoint>::const_iterator last = points.begin() + sample_size;
+  std::vector<DataPoint> sample(first, last);
 
-  for (std::vector<DataPoint>::iterator it = firstK.begin(); it != firstK.end();
-       ++it) {
-    int index = std::distance(firstK.begin(), it);
+  std::vector<DataPoint> centroids;
+
+  // Pick a random centroid first
+  int index = std::rand() % sample.size();
+  DataPoint centroid = sample[index];
+  sample.erase(sample.begin() + index);
+  centroids.push_back(centroid);
+
+  // Build list of centroids by always choosing the point
+  // farthest apart from the current centroid
+  while (centroids.size() < k) {
+    std::vector<DataPoint>::iterator max = sample.begin();
+    double maxDistance = euclidean_distance(centroid, *max);
+
+    for (std::vector<DataPoint>::iterator it = sample.begin() + 1;
+         it != sample.end(); ++it) {
+      double distance = euclidean_distance(centroid, *it);
+      if (distance > maxDistance) {
+        max = it;
+        maxDistance = distance;
+      }
+    }
+    centroid = *max;
+    centroids.push_back(centroid);
+    sample.erase(max);
+  }
+
+  for (std::vector<DataPoint>::iterator it = centroids.begin();
+       it != centroids.end(); ++it) {
+    int index = std::distance(centroids.begin(), it);
     it->k = index + 1;
   }
 
   if (verbose) {
     std::cout << "Initial Centroids " << std::endl;
-    print_data_points(firstK);
+    print_data_points(centroids);
   }
 
-  return firstK;
+  return centroids;
 }
 
 void assign_closest(std::vector<DataPoint> centroids, DataPoint &point,
@@ -165,20 +190,22 @@ void initialize(DataPoint &point, int k, int n) {
 
 void print_usage(char *name) {
   std::cout << "Incorrect number of arguments" << std::endl;
-  std::cout << "Correct usage: " << name << " data.txt" << std::endl;
+  std::cout << "Correct usage: " << name << " <data_file> <clusters>"
+            << std::endl;
+  std::cout << "Example: " << name << " points.txt 3" << std::endl;
   std::cout << "For verbose output use -v or -verbose: " << name
-            << " data.txt -verbose" << std::endl;
+            << " points.txt 3 -verbose" << std::endl;
 }
 
 int main(int argc, char *argv[]) {
-  if (argc < 2) {
+  if (argc < 3) {
     print_usage(argv[0]);
     exit(1);
   }
 
-  if (argc == 3) {
-    if (strncmp(argv[2], "-verbose", 8) == 0 ||
-        strncmp(argv[2], "-v", 2) == 0) {
+  if (argc == 4) {
+    if (strncmp(argv[3], "-verbose", 8) == 0 ||
+        strncmp(argv[3], "-v", 2) == 0) {
       verbose = true;
     } else {
       print_usage(argv[0]);
@@ -194,11 +221,10 @@ int main(int argc, char *argv[]) {
 
   int dimensions;
   int number_of_points;
-  int clusters;
+  int clusters = atoi(argv[2]);
 
   data_file >> dimensions;
   data_file >> number_of_points;
-  data_file >> clusters;
 
   std::vector<DataPoint> points;
 
