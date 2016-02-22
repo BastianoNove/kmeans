@@ -1,4 +1,6 @@
 all:
 	@mkdir -p bin
-	llvm-g++ kmeans.cpp -o bin/kmeans
+	llvm-g++ src/kmeans.cpp -o bin/kmeans
 
+clean:
+	rm bin/*
