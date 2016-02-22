@@ -17,6 +17,8 @@ Requires gnuplot.
 ## Example
 
 5 Clusters:
-`./bin/kmeans data/second_sample.txt 5 > data/second_sample_clusters.txt`
+`./bin/kmeans data/points.txt 3 > data/points_clusters.txt
 
-`./plot data/second_sample_clusters.txt`
+`./plot data/points_clusters.txt
+
+![plot](https://raw.githubusercontent.com/BastianoNove/kmeans/master/data/third_sample.png)
