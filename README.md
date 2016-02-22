@@ -16,9 +16,10 @@ Requires gnuplot.
 
 ## Example
 
-5 Clusters:
-`./bin/kmeans data/points.txt 3 > data/points_clusters.txt
+3 Clusters:
 
-`./plot data/points_clusters.txt
+`./bin/kmeans data/points.txt 3 > data/points_clusters.txt`
+
+`./plot data/points_clusters.txt`
 
 ![plot](https://raw.githubusercontent.com/BastianoNove/kmeans/master/data/third_sample.png)
